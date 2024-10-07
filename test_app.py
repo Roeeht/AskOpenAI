@@ -1,46 +1,54 @@
 import pytest
 from flask import Flask
-import openai
-import json
-from app import app  # Assuming your Flask app is in app.py
+from unittest.mock import MagicMock
 
-# Mock OpenAI API response
-@pytest.fixture
-def mock_openai(monkeypatch):
-    class MockCompletion:
-        @staticmethod
-        def create(engine, prompt, max_tokens):
-            return {
-                'choices': [{
-                    'text': 'This is a mock response.'
-                }]
-            }
-
-    monkeypatch.setattr(openai.resources.Completions, 'create', MockCompletion.create)
+# Assuming your Flask app is called 'app' and you import it here
+from app import app
 
 @pytest.fixture
 def client():
+    """Flask test client for making requests to your app."""
     app.config['TESTING'] = True
-    client = app.test_client()
-    return client
+    with app.test_client() as client:
+        yield client
 
-def test_ask_endpoint(client, mock_openai):
-    # Define the payload to send to the /ask endpoint
-    payload = {
-        "question": "What is the capital of France?"
+def test_ask_question(client, mocker):
+    """Test the /ask route by mocking the OpenAI API."""
+
+    # Mock the OpenAI API call
+    mock_openai = mocker.patch('openai.chat.completions.create')
+    print("Mock applied: ", mock_openai)
+
+    # Set the mock response
+    mock_openai.return_value = {
+        "choices": [
+            {
+                "message": {
+                    "content": "This is a mocked response."
+                }
+            }
+        ]
     }
 
-    # Make the POST request to the /ask endpoint
-    response = client.post('/ask', 
-                           data=json.dumps(payload),
-                           content_type='application/json')
+    # Send a POST request to the /ask route
+    response = client.post('/ask', json={
+        "question": "What is the capital of France?"
+    })
 
-    # Parse the response JSON
+    # Parse the JSON response
     data = response.get_json()
 
     # Assertions
     assert response.status_code == 200
-    assert 'question' in data
-    assert 'answer' in data
     assert data['question'] == "What is the capital of France?"
-    assert data['answer'] == "This is a mock response."
+    assert data['answer'] == "This is a mocked response."
+
+    # Ensure the OpenAI API was called with the correct parameters
+    mock_openai.assert_called_once_with(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "What is the capital of France?"}
+        ],
+        max_tokens=100
+    )
