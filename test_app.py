@@ -17,7 +17,6 @@ def test_ask_question(client, mocker):
 
     # Mock the OpenAI API call
     mock_openai = mocker.patch('openai.chat.completions.create')
-    print("Mock applied: ", mock_openai)
 
     # Set the mock response
     mock_openai.return_value = {
