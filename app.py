@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask 
 from config import Config
 from models.user_model import db
 from routes.user_routes import user_bp
