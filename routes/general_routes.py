@@ -47,7 +47,7 @@ def askOpenAI(question):
         )
         
         # Extract the response text from OpenAI
-    answer = response['choices'][0]['message']['content'].strip()
+    answer = response.choices[0].message.content.strip()
     return answer
 
 
