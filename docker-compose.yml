@@ -1,7 +1,9 @@
-version: '3'
 services:
   web:
     build: .
+    command: ["./wait-for-it.sh", "db:5432", "--", "sh", "-c", "alembic upgrade head && flask run"]
+    depends_on:
+      - db
     ports:
       - "5000:5000"
     environment:
@@ -10,12 +12,10 @@ services:
       SQLALCHEMY_DATABASE_URI: ${SQLALCHEMY_DATABASE_URI}
     volumes:
       - .:/app
-    depends_on:
-      - db
     env_file:
       - .env
     networks:
-      - app-network
+      - my_network
 
   db:
     image: postgres:13
@@ -28,10 +28,25 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
-      - app-network
+      - my_network
+
+  test:
+    build: .
+    command: pytest
+    environment:
+      FLASK_ENV: development
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      SQLALCHEMY_DATABASE_URI: ${SQLALCHEMY_DATABASE_URI}
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    networks:
+      - my_network
 
 networks:
-  app-network:
+  my_network:
+    driver: bridge
 
 volumes:
   pgdata:

@@ -9,11 +9,20 @@ RUN apt-get update && apt-get install -y \
     libpq-dev gcc \
     && rm -rf /var/lib/apt/lists/*
 
+
+
 # Copy the current directory contents into the container
 COPY . /app
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Make sure Alembic is installed
+RUN pip install --no-cache-dir alembic
+
+
+# Install testing dependencies like pytest
+RUN pip install pytest pytest-mock
 
 # Expose the Flask port
 EXPOSE 5000

@@ -55,17 +55,11 @@ This project is a Flask web app that integrates with PostgreSQL for data storage
     docker exec -it <db-container-name> psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
 Replace <db-container-name> with the name of the PostgreSQL container.
 
-### Testing
-
-To run tests (e.g., using pytest), execute inside the container:
-   docker-compose exec web pytest
-
 ### Testing the /ask Route:
-To test the /ask route, you can use the following curl command:
+To test the /ask route, run the tests using the test service:
+    docker-compose run test
 
-curl -X POST http://localhost:5000/ask \
--H "Content-Type: application/json" \
--d '{"question": "What is the capital of France?"}'
+
 
 
 

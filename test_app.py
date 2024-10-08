@@ -17,16 +17,8 @@ def test_ask_question(client, mocker):
     # Mock the OpenAI API call
     mock_openai = mocker.patch('openai.chat.completions.create')
 
-    # Set the mock response
-    mock_openai.return_value = {
-        "choices": [
-            {
-                "message": {
-                    "content": "This is a mocked response."
-                }
-            }
-        ]
-    }
+    # Set the mock response, matching the structure of the actual API response
+    mock_openai.return_value = MagicMock(choices=[MagicMock(message=MagicMock(content="This is a mocked response."))])
 
     # Send a POST request to the /ask route
     response = client.post('/ask', json={

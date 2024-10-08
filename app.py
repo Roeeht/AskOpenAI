@@ -43,10 +43,10 @@ def execute_sql_file(file_path):
 
 
 
-# Create the database
-with app.app_context():
-    db.create_all()
-    execute_sql_file('create_db.sql')  # Run the SQL file
+# # Create the database
+# with app.app_context():
+#     db.create_all()
+#     execute_sql_file('create_db.sql')  # Run the SQL file
 
 # Register blueprints (for routes)
 app.register_blueprint(qa_bp)
