@@ -1,9 +1,73 @@
-# Insait_home_assignment
+# Flask App with PostgreSQL and OpenAI Integration
 
-## Setup
+This project is a Flask web app that integrates with PostgreSQL for data storage and OpenAI for processing questions. It is containerized using Docker.
 
-1. Copy the `.env.example` file to `.env`:
-   ```bash
+## Setup Instructions
+
+### Requirements
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+- OpenAI API Key
+
+### Environment Setup
+
+1. **Clone the Repository**:
+   git clone https://github.com/roeeht/insait_home_assignment.git
+   cd insait_home_assignment
+
+2. **Create the `.env` File**:
    cp .env.example .env
 
-2.
+   Update the `.env` file with your database credentials and OpenAI API key:
+   POSTGRES_USER=your_db_user
+   POSTGRES_PASSWORD=your_db_password
+   POSTGRES_DB=your_db_name
+   SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+   OPENAI_API_KEY=your_openai_api_key
+
+### Run the Application
+
+1. **Build and Run the Containers**:
+   docker-compose up --build
+   This will start both the Flask app and the PostgreSQL database in Docker containers.
+
+2. **Access the App**:
+   - Flask app: http://localhost:5000
+
+### Useful Docker Commands
+
+- **Start the app**:
+  docker-compose up
+
+- **Stop the app**:
+  docker-compose down
+
+- **Rebuild the containers**:
+  docker-compose up --build
+
+- **Check logs**:
+  docker-compose logs web   # Flask app logs
+  docker-compose logs db    # PostgreSQL logs
+
+### Accessing the Application
+- Flask Web App: The Flask app will be running at http://localhost:5000.
+- PostgreSQL Database: You can access the PostgreSQL database through the following command:
+    docker exec -it <db-container-name> psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+Replace <db-container-name> with the name of the PostgreSQL container.
+
+### Testing
+
+To run tests (e.g., using pytest), execute inside the container:
+   docker-compose exec web pytest
+
+### Testing the /ask Route:
+To test the /ask route, you can use the following curl command:
+
+curl -X POST http://localhost:5000/ask \
+-H "Content-Type: application/json" \
+-d '{"question": "What is the capital of France?"}'
+
+
+
+
+
