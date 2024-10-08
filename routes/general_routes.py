@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify
 import openai
 from config import Config
 
+
 # Create the blueprint
 general_bp = Blueprint('general_bp', __name__)
 
@@ -20,7 +21,23 @@ def ask_question():
 
     try:
         # Call the OpenAI API to get the answer
-        response = openai.chat.completions.create(
+        answer = askOpenAI(question)
+        status_code, db_response = updateDB_via_route(question, answer)
+       
+        if status_code != 201:
+            return jsonify({"error": "Failed to store question and answer in the database"}), 500
+       
+        return jsonify({"question": question, "answer": answer}), 200
+
+    except Exception as e:
+        # Print full traceback for any other errors
+        print(f"Unexpected error: {str(e)}")
+        traceback.print_exc()
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+
+
+def askOpenAI(question):
+    response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
@@ -30,14 +47,22 @@ def ask_question():
         )
         
         # Extract the response text from OpenAI
-        answer = response['choices'][0]['message']['content'].strip()
+    answer = response['choices'][0]['message']['content'].strip()
+    return answer
+    # Return the question and answer as a JSON response
 
-        # Return the question and answer as a JSON response
-        return jsonify({"question": question, "answer": answer})
+
+def updateDB_via_route(question, answer):
+    from app import app
+
+    with app.app_context():
+        with app.test_client() as client:
+            # Send the data to the existing /qa route
+            response = client.post('/qa', json={"question": question, "answer": answer})
+
+            print(f"Request to /qa with question: {question} and answer: {answer}")
+            print(f"Status code from /qa: {response.status_code}")
+            print(f"Response from /qa: {response.get_json()}")
 
 
-    except Exception as e:
-        # Print full traceback for any other errors
-        print(f"Unexpected error: {str(e)}")
-        traceback.print_exc()
-        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+            return response.status_code, response.get_json()

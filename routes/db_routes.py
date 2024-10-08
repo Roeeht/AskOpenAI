@@ -10,12 +10,18 @@ def create_qa():
         return jsonify({"error": "question is required"}), 400
 
     try:
+        print(f"Received question: {data['question']}")
+        print(f"Received answer: {data['answer']}")
+
         new_qa = Qa(data['question'], data['answer'])
         db.session.add(new_qa)
         db.session.commit()
         return jsonify(new_qa.to_dict()), 201
     except Exception as e:
         db.session.rollback()
+
+        print(f"Error saving to database: {str(e)}")  # Log the specific error
+
         return jsonify({"error": str(e)}), 500
 
 @qa_bp.route('/history', methods=['GET'])

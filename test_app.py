@@ -2,7 +2,6 @@ import pytest
 from flask import Flask
 from unittest.mock import MagicMock
 
-# Assuming your Flask app is called 'app' and you import it here
 from app import app
 
 @pytest.fixture
@@ -33,6 +32,11 @@ def test_ask_question(client, mocker):
     response = client.post('/ask', json={
         "question": "What is the capital of France?"
     })
+
+        # Print response for debugging
+    print(f"Response status code: {response.status_code}")
+    print(f"Response data: {response.get_json()}")
+
 
     # Parse the JSON response
     data = response.get_json()
