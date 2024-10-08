@@ -49,7 +49,6 @@ def askOpenAI(question):
         # Extract the response text from OpenAI
     answer = response['choices'][0]['message']['content'].strip()
     return answer
-    # Return the question and answer as a JSON response
 
 
 def updateDB_via_route(question, answer):
