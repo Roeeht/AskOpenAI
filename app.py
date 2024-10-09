@@ -29,22 +29,10 @@ print(f"Loaded Config SQLALCHEMY_DATABASE_URI: {app.config['SQLALCHEMY_DATABASE_
 # Initialize the database with the app
 db.init_app(app)
 
-# Function to execute SQL from a file
-def execute_sql_file(file_path):
-    with app.app_context():
-        with open(file_path, 'r') as file:
-            sql_commands = file.read()
-            with db.engine.connect() as connection:
-                # Split the SQL commands into individual statements if necessary
-                for command in sql_commands.split(';'):
-                    command = command.strip()
-                    if command:  # Skip empty commands
-                        connection.execute(text(command))  # Use text() to wrap the command
-
-
 # Register blueprints (for routes)
 app.register_blueprint(qa_bp)
 app.register_blueprint(general_bp, url_prefix='/')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = app.config['FLASK_PORT']  
+    app.run(host='0.0.0.0', port=port, debug=True)
