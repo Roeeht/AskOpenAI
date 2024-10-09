@@ -16,14 +16,15 @@ This project is a Flask web app that integrates with PostgreSQL for data storage
    cd AskOpenAI
 
 2. **Create the `.env` File**:
-   run "cp .env.example .env"
+   Update the `.env.example` file with your database credentials and OpenAI API key:
+    POSTGRES_USER=your_db_user
+    POSTGRES_PASSWORD=your_db_password
+    POSTGRES_DB=your_db_name
+    SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    OPENAI_API_KEY=your_openai_api_key
 
-   Update the `.env` file with your database credentials and OpenAI API key:
-   POSTGRES_USER=your_db_user
-   POSTGRES_PASSWORD=your_db_password
-   POSTGRES_DB=your_db_name
-   SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-   OPENAI_API_KEY=your_openai_api_key
+  run
+    "cp .env.example .env"
 
 ### Run the Application
 
