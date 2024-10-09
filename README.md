@@ -13,10 +13,10 @@ This project is a Flask web app that integrates with PostgreSQL for data storage
 
 1. **Clone the Repository**:
    git clone https://github.com/roeeht/insait_home_assignment.git
-   cd insait_home_assignment
+   cd AskOpenAI
 
 2. **Create the `.env` File**:
-   cp .env.example .env
+   run "cp .env.example .env"
 
    Update the `.env` file with your database credentials and OpenAI API key:
    POSTGRES_USER=your_db_user
