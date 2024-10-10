@@ -1,7 +1,7 @@
 services:
   web:
     build: .
-    command: ["./wait-for-it.sh", "db:5432", "--", "sh", "-c", "alembic upgrade head && flask run --host=0.0.0.0"]
+    command: ["./wait-for-it.sh", "db:${DB_PORT}", "--", "sh", "-c", "alembic upgrade head && flask run --host=0.0.0.0"]
     depends_on:
       - db
     ports:
@@ -24,7 +24,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:${DB_PORT}"
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -32,7 +32,7 @@ services:
 
   test:
     build: .
-    command: ["./wait-for-it.sh", "db:5432", "--", "sh", "-c", "alembic upgrade head && pytest"]
+    command: ["./wait-for-it.sh", "db:${DB_PORT}", "--", "sh", "-c", "alembic upgrade head && pytest"]
     environment:
       FLASK_ENV: development
       OPENAI_API_KEY: ${OPENAI_API_KEY}
