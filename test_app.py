@@ -1,7 +1,7 @@
 import pytest
 from flask import Flask
 from unittest.mock import MagicMock
-
+from status_codes import StatusCode
 from app import app
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def test_ask_question(client, mocker):
     data = response.get_json()
 
     # Assertions
-    assert response.status_code == 200
+    assert response.status_code == StatusCode.SUCCESS.value
     assert data['question'] == "What is the capital of France?"
     assert data['answer'] == "This is a mocked response."
 

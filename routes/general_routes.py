@@ -2,7 +2,7 @@ import traceback
 from flask import Blueprint, request, jsonify
 import openai
 from config import Config
-
+from status_codes import StatusCode
 
 # Create the blueprint
 general_bp = Blueprint('general_bp', __name__)
@@ -17,23 +17,23 @@ def ask_question():
     question = data.get('question')
 
     if not question:
-        return jsonify({"error": "No question provided"}), 400
+        return jsonify({"error": "No question provided"}), StatusCode.BAD_REQUEST.value
 
     try:
         # Call the OpenAI API to get the answer
         answer = askOpenAI(question)
         status_code, db_response = updateDB_via_route(question, answer)
        
-        if status_code != 201:
-            return jsonify({"error": "Failed to store question and answer in the database"}), 500
+        if status_code != StatusCode.CREATED.value:
+            return jsonify({"error": "Failed to store question and answer in the database"}), StatusCode.INTERNAL_SERVER_ERROR.value
        
-        return jsonify({"question": question, "answer": answer}), 200
+        return jsonify({"question": question, "answer": answer}), StatusCode.SUCCESS.value
 
     except Exception as e:
         # Print full traceback for any other errors
         print(f"Unexpected error: {str(e)}")
         traceback.print_exc()
-        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), StatusCode.INTERNAL_SERVER_ERROR.value
 
 
 def askOpenAI(question):
