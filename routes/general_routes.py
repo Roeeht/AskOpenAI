@@ -13,7 +13,10 @@ openai.api_key = Config.OPENAI_API_KEY
 @general_bp.route('/ask', methods=['POST'])
 def ask_question():
     # Get the question from the JSON payload
-    data = request.json
+    data = request.get_json(force=True)
+    if data is None:
+        return jsonify({"error": "Invalid JSON provided"}), StatusCode.BAD_REQUEST.value
+
     question = data.get('question')
 
     if not question:
@@ -28,6 +31,11 @@ def ask_question():
             return jsonify({"error": "Failed to store question and answer in the database"}), StatusCode.INTERNAL_SERVER_ERROR.value
        
         return jsonify({"question": question, "answer": answer}), StatusCode.SUCCESS.value
+
+    except KeyError:
+        # Handle case where the key 'question' is missing from JSON
+        return jsonify({"error": "Missing 'question' field in request"}), StatusCode.BAD_REQUEST.value
+
 
     except Exception as e:
         # Print full traceback for any other errors

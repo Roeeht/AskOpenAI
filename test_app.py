@@ -49,3 +49,73 @@ def test_ask_question(client, mocker):
     )
 
 
+def test_ask_question_missing_input(client):
+    """Test the /ask route with a missing question field."""
+
+    # Send a POST request to the /ask route with no 'question' field
+    response = client.post('/ask', json={})
+
+    # Parse the JSON response
+    data = response.get_json()
+
+    # Assertions
+    assert response.status_code == StatusCode.BAD_REQUEST.value  # Assuming your app returns a 400 for bad requests
+    assert 'error' in data
+    assert data['error'] == "No question provided"
+
+def test_ask_question_empty_input(client):
+    """Test the /ask route with an empty question."""
+
+    # Send a POST request to the /ask route with an empty question
+    response = client.post('/ask', json={"question": ""})
+
+    # Parse the JSON response
+    data = response.get_json()
+
+    # Assertions
+    assert response.status_code == StatusCode.BAD_REQUEST.value
+    assert 'error' in data
+    assert data['error'] == "No question provided"
+
+def test_ask_question_openai_failure(client, mocker):
+    """Test the /ask route when the OpenAI API call fails."""
+
+    # Mock the OpenAI API to raise an exception
+    mock_openai = mocker.patch('openai.chat.completions.create')
+    mock_openai.side_effect = Exception("OpenAI API error")
+
+    # Send a POST request to the /ask route
+    response = client.post('/ask', json={
+        "question": "What is the capital of France?"
+    })
+
+    # Parse the JSON response
+    data = response.get_json()
+
+    # Assertions
+    assert response.status_code == StatusCode.INTERNAL_SERVER_ERROR.value
+    assert 'error' in data
+    assert data['error'] == "An unexpected error occurred: OpenAI API error"
+
+    # Ensure the OpenAI API was called
+    mock_openai.assert_called_once()
+
+def test_ask_question_unexpected_openai_response(client, mocker):
+    """Test the /ask route when the OpenAI API returns an unexpected response format."""
+
+    # Mock the OpenAI API call with an unexpected structure
+    mock_openai = mocker.patch('openai.chat.completions.create')
+    mock_openai.return_value = MagicMock(choices=[])
+
+    # Send a POST request to the /ask route
+    response = client.post('/ask', json={
+        "question": "What is the capital of France?"
+    })
+
+    # Parse the JSON response
+    data = response.get_json()
+
+    # Assertions
+    assert response.status_code == StatusCode.INTERNAL_SERVER_ERROR.value
+    assert 'error' in data
+    assert data['error'] == "An unexpected error occurred: list index out of range"
