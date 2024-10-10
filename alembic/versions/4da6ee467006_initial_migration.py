@@ -22,6 +22,19 @@ def upgrade():
     connection = op.get_bind()
     inspector = inspect(connection)
 
+    # Check if the 'alembic_version' table already exists
+    if not inspector.has_table('alembic_version'):
+        # Create the 'alembic_version' table
+        op.create_table(
+            'alembic_version',
+            sa.Column('version_num', sa.String(length=32), nullable=False),
+        )
+        op.execute('INSERT INTO alembic_version (version_num) VALUES ("{}")'.format(revision))
+    else:
+        print("Table 'alembic_version' already exists. Skipping creation.")
+
+
+
     # Check if the 'qa' table already exists
     if not inspector.has_table('qa'):
         # Create the 'qa' table with created_at and updated_at columns
